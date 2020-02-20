@@ -1,11 +1,13 @@
 package org.alfresco.engine;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.alfresco.bean.Input;
+import org.alfresco.bean.LibraryInput;
 import org.alfresco.bean.Output;
 
 public class SimpleEngine {
@@ -21,9 +23,11 @@ public class SimpleEngine {
 
 		for (int day = 0; day < in.getDaysForScanning(); day++) {
 			if (onBoardingDays == 0) {
-				onBoarding = pickLibrary(libsUnstarted);
-				onBoardingDays = in.getLibraries().get(onBoarding).getSignupDays();
-				libsUnstarted.remove(onBoarding);
+				onBoarding = pickLibrary(in, libsUnstarted);
+				if (onBoarding != null) {
+					onBoardingDays = in.getLibraries().get(onBoarding).getSignupDays();
+					libsUnstarted.remove(onBoarding);
+				}
 			} else {
 				onBoardingDays--;
 			}
@@ -37,8 +41,26 @@ public class SimpleEngine {
 		return out;
 	}
 
-	private Integer pickLibrary(List<Integer> libs) {
-		return libs.get(0);
+	/**
+	 * Pick the next library to sign up.
+	 *
+	 * @param in The input
+	 * @param libraryIds All libraries not yet signed up.
+	 * @return The selected library (or null if none suitable).
+	 */
+	private Integer pickLibrary(Input in, List<Integer> libraryIds) {
+		return libraryIds.stream()
+						 .map(id -> in.getLibraries().get(id))
+						 .filter(library -> hasNewBooks(library.getBooksInLibrary()))
+						 .sorted(Comparator.comparingInt(LibraryInput::getSignupDays))
+						 .map(LibraryInput::getId)
+						 .findFirst().orElse(null);
+	}
+
+	private boolean hasNewBooks(int[] booksInLibrary)
+	{
+		// TODO Determine if this library has any unscanned books.
+		return true;
 	}
 
 	private void doDay(Input in, List<Integer> libsStarted)

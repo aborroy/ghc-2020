@@ -1,12 +1,14 @@
 package org.alfresco.bean;
 
 public class LibraryInput {
-	
+
+	private Integer id;
 	private Integer booksCount;
 	private Integer signupDays;
 	private Integer shipBooksCount;
-	
+
 	private int[] booksInLibrary;
+
 
 	public Integer getBooksCount() {
 		return booksCount;
@@ -40,4 +42,13 @@ public class LibraryInput {
 		this.booksInLibrary = booksInLibrary;
 	}
 
+	public Integer getId()
+	{
+		return id;
+	}
+
+	public void setId(Integer id)
+	{
+		this.id = id;
+	}
 }

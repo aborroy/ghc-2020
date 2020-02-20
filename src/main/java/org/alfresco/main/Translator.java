@@ -25,6 +25,7 @@ public class Translator {
 
 	// Obtain Input Bean from Input File
 	public static Input getInput(File file) throws Exception {
+		Integer libraryId = 0;
 		Input input = new Input();
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			int lineCount = 0;
@@ -46,6 +47,8 @@ public class Translator {
 					// Library
 					if (lineCount % 2 == 0) 
 					{
+						library.setId(libraryId);
+						libraryId++;
 						library.setBooksCount(numbers[0]);
 						library.setSignupDays(numbers[1]);
 						library.setShipBooksCount(numbers[2]);
