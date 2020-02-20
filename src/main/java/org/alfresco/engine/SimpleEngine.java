@@ -69,8 +69,8 @@ public class SimpleEngine {
 
 	private boolean hasNewBooks(List<Integer> booksInLibrary)
 	{
-		// TODO Determine if this library has any unscanned books.
-		return true;
+		// Determine if this library has any unscanned books.
+		return !booksInLibrary.isEmpty();
 	}
 
 	/**
