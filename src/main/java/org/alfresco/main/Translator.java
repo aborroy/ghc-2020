@@ -87,7 +87,7 @@ public class Translator {
 					String lineString = library.getNumber() + " " + library.getBooksForScanning().size();
 				    writer.write(lineString + "\n");
 				    lineString = Arrays.toString(library.getBooksForScanning().toArray()).replaceAll(",", "");
-				    writer.write(lineString.substring(1, lineString.length() - 1));
+				    writer.write(lineString.substring(1, lineString.length() - 1) + "\n");
 				}
 			}
 		}

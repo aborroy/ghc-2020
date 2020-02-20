@@ -94,8 +94,8 @@ public class SimpleEngine {
 				booksSelected.add(bookSelected);
 				library.setBooksInLibrary(removeElement(booksInLibrary, bookSelected));
 			}
-			// TODO Add the books to the output
-
+			// Add the books to the output.
+			out.getLibsShipping().get(libraryId).getBooksForScanning().addAll(booksSelected);
 		}
 	}
 
