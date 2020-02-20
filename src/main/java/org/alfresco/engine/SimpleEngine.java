@@ -60,15 +60,15 @@ public class SimpleEngine {
 	private Integer pickLibrary(Input in, List<Integer> libraryIds) {
 		LOGGER.debug("Picking from {}", libraryIds);
 		int fewestDays = Integer.MAX_VALUE;
-		int bestShipCount = 0;
+		int bestBooksInLib = 0;
 		Integer bestLibraryId = null;
 		for (int libraryId : libraryIds) {
 			LibraryInput library = in.getLibraries().get(libraryId);
 			if (hasNewBooks(library.getBooksInLibrary())) {
 				if (library.getSignupDays() <= fewestDays) {
 					fewestDays = library.getSignupDays();
-					if (library.getShipBooksCount() > bestShipCount) {
-						bestShipCount = library.getShipBooksCount();
+					if (library.getBooksInLibrary().size() > bestBooksInLib) {
+						bestBooksInLib = library.getBooksInLibrary().size();
 						bestLibraryId = libraryId;
 					}
 				}
