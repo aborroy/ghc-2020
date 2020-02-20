@@ -69,6 +69,7 @@ public class Translator {
 					if (lineCount % 2 == 1)
 					{
 						List<Integer> books = Arrays.stream(numbers).boxed().collect(toList());
+						books = sortBooksByScores(books, input.getBookScores());
 						library.setBooksInLibrary(books);
 						List<LibraryInput> libs = input.getLibraries();
 						libs.add(library);
@@ -79,6 +80,11 @@ public class Translator {
 			}
 		}
 		return input;
+	}
+
+	private static List<Integer> sortBooksByScores(List<Integer> books, int[] bookScores) {
+		// Reverse sort (high score first).
+		return books.stream().sorted((a, b) -> bookScores[b] - bookScores[a]).collect(toList());
 	}
 
 	// Write Output File from Output Bean

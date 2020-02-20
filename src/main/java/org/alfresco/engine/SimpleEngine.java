@@ -44,6 +44,7 @@ public class SimpleEngine {
 				onBoarding = null;
 			}
 			doDay(in, out, libsStarted);
+			LOGGER.warn("Done day {}, libsStarted {}", day, libsStarted.size());
 		}
 
 		return out;
@@ -57,7 +58,7 @@ public class SimpleEngine {
 	 * @return The selected library (or null if none suitable).
 	 */
 	private Integer pickLibrary(Input in, List<Integer> libraryIds) {
-		LOGGER.warn("Picking from {}", libraryIds);
+		LOGGER.debug("Picking from {}", libraryIds);
 		return libraryIds.stream()
 						 .map(id -> in.getLibraries().get(id))
 						 .filter(library -> hasNewBooks(library.getBooksInLibrary()))

@@ -8,7 +8,7 @@ public class LibraryInput {
 	private Integer booksCount;
 	private Integer signupDays;
 	private Integer shipBooksCount;
-
+	/** The books ordered with the most valuable first. */
 	private List<Integer> booksInLibrary;
 
 
@@ -36,6 +36,7 @@ public class LibraryInput {
 		this.shipBooksCount = shipBooksCount;
 	}
 
+	/** The books ordered with the most valuable first. */
 	public List<Integer> getBooksInLibrary() {
 		return booksInLibrary;
 	}
