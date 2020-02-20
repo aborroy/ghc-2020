@@ -10,6 +10,7 @@ import org.alfresco.bean.Input;
 import org.alfresco.bean.LibraryInput;
 import org.alfresco.bean.LibraryOutput;
 import org.alfresco.bean.Output;
+import org.apache.logging.log4j.util.PropertySource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +60,23 @@ public class SimpleEngine {
 	 */
 	private Integer pickLibrary(Input in, List<Integer> libraryIds) {
 		LOGGER.debug("Picking from {}", libraryIds);
-		return libraryIds.stream()
+		Integer libId = libraryIds.stream()
 						 .map(id -> in.getLibraries().get(id))
 						 .filter(library -> hasNewBooks(library.getBooksInLibrary()))
 						 .sorted(Comparator.comparingInt(LibraryInput::getSignupDays))
 						 .map(LibraryInput::getId)
 						 .findFirst().orElse(null);
+		if (libId == null) {
+			return null;
+		}
+		int bestSignupDays = in.getLibraries().get(libId).getSignupDays();
+		return libraryIds.stream()
+								  .map(id -> in.getLibraries().get(id))
+								  .filter(library -> hasNewBooks(library.getBooksInLibrary()))
+								  .filter(library -> library.getSignupDays() == bestSignupDays)
+								  .sorted((a, b) -> b.getShipBooksCount() - a.getShipBooksCount())
+								  .map(LibraryInput::getId)
+								  .findFirst().orElse(null);
 	}
 
 	private boolean hasNewBooks(List<Integer> booksInLibrary)
