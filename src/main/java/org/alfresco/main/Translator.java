@@ -84,9 +84,9 @@ public class Translator {
 			if (output.getLibsShipping() != null) {
 				// Nb. The libsShipping map is sorted by insertion order.
 				for (LibraryOutput library : output.getLibsShipping().values()) {
-					String lineString = library.getNumber() + " " + library.getBooksForScanning().length; 
+					String lineString = library.getNumber() + " " + library.getBooksForScanning().size();
 				    writer.write(lineString + "\n");
-				    lineString = Arrays.toString(library.getBooksForScanning()).replaceAll(",", "");
+				    lineString = Arrays.toString(library.getBooksForScanning().toArray()).replaceAll(",", "");
 				    writer.write(lineString.substring(1, lineString.length() - 1));
 				}
 			}
