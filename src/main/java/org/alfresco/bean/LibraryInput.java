@@ -1,19 +1,15 @@
 package org.alfresco.bean;
 
-import org.alfresco.engine.SimpleEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 
 public class LibraryInput {
-	/** Logger for the class. */
-	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEngine.class);
 
 	private Integer id;
 	private Integer booksCount;
 	private Integer signupDays;
 	private Integer shipBooksCount;
 
-	private int[] booksInLibrary;
+	private List<Integer> booksInLibrary;
 
 
 	public Integer getBooksCount() {
@@ -25,7 +21,6 @@ public class LibraryInput {
 	}
 
 	public Integer getSignupDays() {
-		LOGGER.warn("SignupDays: {}" , signupDays);
 		return signupDays;
 	}
 
@@ -41,12 +36,16 @@ public class LibraryInput {
 		this.shipBooksCount = shipBooksCount;
 	}
 
-	public int[] getBooksInLibrary() {
+	public List<Integer> getBooksInLibrary() {
 		return booksInLibrary;
 	}
 
-	public void setBooksInLibrary(int[] booksInLibrary) {
+	public void setBooksInLibrary(List<Integer> booksInLibrary) {
 		this.booksInLibrary = booksInLibrary;
+	}
+
+	public void removeBookFromLibrary(Integer book) {
+		booksInLibrary.remove(book);
 	}
 
 	public Integer getId()

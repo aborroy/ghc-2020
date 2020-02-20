@@ -66,7 +66,7 @@ public class SimpleEngine {
 						 .findFirst().orElse(null);
 	}
 
-	private boolean hasNewBooks(int[] booksInLibrary)
+	private boolean hasNewBooks(List<Integer> booksInLibrary)
 	{
 		// TODO Determine if this library has any unscanned books.
 		return true;
@@ -84,7 +84,7 @@ public class SimpleEngine {
 		for (Integer libraryId : libsStarted)
 		{
 			LibraryInput library = in.getLibraries().get(libraryId);
-			int[] booksInLibrary = library.getBooksInLibrary();
+			List<Integer> booksInLibrary = library.getBooksInLibrary();
 			List<Integer> booksSelected = new ArrayList<>();
 			for (int i = 0; i < library.getShipBooksCount(); i++) {
 				Integer bookSelected = getMaxBook(in.getBookScores(), booksInLibrary);
@@ -92,15 +92,18 @@ public class SimpleEngine {
 					break;
 				}
 				booksSelected.add(bookSelected);
-				library.setBooksInLibrary(removeElement(booksInLibrary, bookSelected));
+				library.removeBookFromLibrary(bookSelected);
 			}
 			// Add the books to the output.
 			out.getLibsShipping().get(libraryId).getBooksForScanning().addAll(booksSelected);
 		}
 	}
 
-	private Integer getMaxBook(int[] bookScores, int[] booksInLibrary) {
-		return booksInLibrary[0];
+	private Integer getMaxBook(int[] bookScores, List<Integer> booksInLibrary) {
+		if (booksInLibrary.isEmpty()) {
+			return null;
+		}
+		return booksInLibrary.get(0);
 	}
 
 	public static int[] removeElement(int[] arr, int index) {

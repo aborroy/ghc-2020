@@ -1,5 +1,7 @@
 package org.alfresco.main;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.alfresco.bean.Input;
 import org.alfresco.bean.LibraryInput;
@@ -65,7 +68,8 @@ public class Translator {
 					// Books
 					if (lineCount % 2 == 1)
 					{
-						library.setBooksInLibrary(numbers);
+						List<Integer> books = Arrays.stream(numbers).boxed().collect(toList());
+						library.setBooksInLibrary(books);
 						List<LibraryInput> libs = input.getLibraries();
 						libs.add(library);
 						input.setLibraries(libs);
