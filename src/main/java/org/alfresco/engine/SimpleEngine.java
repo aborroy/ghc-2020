@@ -59,12 +59,22 @@ public class SimpleEngine {
 	 */
 	private Integer pickLibrary(Input in, List<Integer> libraryIds) {
 		LOGGER.debug("Picking from {}", libraryIds);
-		return libraryIds.stream()
-						 .map(id -> in.getLibraries().get(id))
-						 .filter(library -> hasNewBooks(library.getBooksInLibrary()))
-						 .sorted(Comparator.comparingInt(LibraryInput::getSignupDays))
-						 .map(LibraryInput::getId)
-						 .findFirst().orElse(null);
+		int fewestDays = Integer.MAX_VALUE;
+		int bestShipCount = 0;
+		Integer bestLibraryId = null;
+		for (int libraryId : libraryIds) {
+			LibraryInput library = in.getLibraries().get(libraryId);
+			if (hasNewBooks(library.getBooksInLibrary())) {
+				if (library.getSignupDays() <= fewestDays) {
+					fewestDays = library.getSignupDays();
+					if (library.getShipBooksCount() > bestShipCount) {
+						bestShipCount = library.getShipBooksCount();
+						bestLibraryId = libraryId;
+					}
+				}
+			}
+		}
+		return bestLibraryId;
 	}
 
 	private boolean hasNewBooks(List<Integer> booksInLibrary)
