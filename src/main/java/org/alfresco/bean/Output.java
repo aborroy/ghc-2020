@@ -1,16 +1,17 @@
 package org.alfresco.bean;
 
-import java.util.List;
+import java.util.LinkedHashMap;
 
 public class Output {
-	
-	List<LibraryOutput> libsShipping;
+	/** Ordered map from library id to the corresponding library output object. */
+	LinkedHashMap<Integer, LibraryOutput> libsShipping = new LinkedHashMap<>();
 
-	public List<LibraryOutput> getLibsShipping() {
+	/** Ordered map from library id to the corresponding library output object. */
+	public LinkedHashMap<Integer, LibraryOutput> getLibsShipping() {
 		return libsShipping;
 	}
 
-	public void setLibsShipping(List<LibraryOutput> libsShipping) {
+	public void setLibsShipping(LinkedHashMap<Integer, LibraryOutput> libsShipping) {
 		this.libsShipping = libsShipping;
 	}
 

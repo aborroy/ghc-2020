@@ -1,6 +1,12 @@
 package org.alfresco.bean;
 
+import org.alfresco.engine.SimpleEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class LibraryInput {
+	/** Logger for the class. */
+	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEngine.class);
 
 	private Integer id;
 	private Integer booksCount;
@@ -19,6 +25,7 @@ public class LibraryInput {
 	}
 
 	public Integer getSignupDays() {
+		LOGGER.warn("SignupDays: {}" , signupDays);
 		return signupDays;
 	}
 

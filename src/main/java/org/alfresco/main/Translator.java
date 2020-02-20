@@ -14,11 +14,16 @@ import org.alfresco.bean.Input;
 import org.alfresco.bean.LibraryInput;
 import org.alfresco.bean.LibraryOutput;
 import org.alfresco.bean.Output;
+import org.alfresco.engine.SimpleEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Translate files into beans and reverse.
  */
 public class Translator {
+	/** Logger for the class. */
+	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEngine.class);
 	
 	// Calculate MAX Tags Count to provide a limit in pairing algorithm
 	static Integer CURRENT_MAX_TAGS_COUNT = 0;
@@ -27,6 +32,8 @@ public class Translator {
 	public static Input getInput(File file) throws Exception {
 		Integer libraryId = 0;
 		Input input = new Input();
+		// A library reference used when looping through the library definition lines.
+		LibraryInput library = null;
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			int lineCount = 0;
 			for (String line; (line = br.readLine()) != null;) {
@@ -41,13 +48,15 @@ public class Translator {
 				{
 					input.setBookScores(numbers);
 				}
-				LibraryInput library = new LibraryInput();
+
 				if (lineCount >= 2)
 				{
 					// Library
 					if (lineCount % 2 == 0) 
 					{
+						library = new LibraryInput();
 						library.setId(libraryId);
+						LOGGER.warn("Library {}: {}", libraryId, numbers);
 						libraryId++;
 						library.setBooksCount(numbers[0]);
 						library.setSignupDays(numbers[1]);
@@ -73,7 +82,8 @@ public class Translator {
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
 			writer.write("" + output.getLibsShipping().size() + "\n");
 			if (output.getLibsShipping() != null) {
-				for (LibraryOutput library : output.getLibsShipping()) {
+				// Nb. The libsShipping map is sorted by insertion order.
+				for (LibraryOutput library : output.getLibsShipping().values()) {
 					String lineString = library.getNumber() + " " + library.getBooksForScanning().length; 
 				    writer.write(lineString + "\n");
 				    lineString = Arrays.toString(library.getBooksForScanning()).replaceAll(",", "");

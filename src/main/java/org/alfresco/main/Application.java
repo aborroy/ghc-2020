@@ -7,6 +7,7 @@ import java.util.List;
 import org.alfresco.bean.Input;
 import org.alfresco.bean.LibraryOutput;
 import org.alfresco.bean.Output;
+import org.alfresco.engine.SimpleEngine;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +25,8 @@ import org.springframework.core.env.SimpleCommandLinePropertySource;
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 
+	private SimpleEngine simpleEngine = new SimpleEngine();
+
 	@Override
 	public void run(String... args) throws Exception {
 
@@ -31,19 +34,14 @@ public class Application implements CommandLineRunner {
 		File inFile = new File(ps.getProperty("fileIn").toString());
 		Input in = Translator.getInput(inFile);
 
-		Output out = new Output();
-		List<LibraryOutput> libs = new ArrayList<>();
-		LibraryOutput lib = new LibraryOutput();
-		lib.setNumber(1);
-		lib.setBooksForScanning(new int[]{1,2});
-		libs.add(lib);
-		out.setLibsShipping(libs);
+		Output out = simpleEngine.run(in);
+
 		File outFile = new File(ps.getProperty("fileOut").toString());
 		Translator.writeOutput(out, outFile);
 
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 

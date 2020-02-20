@@ -9,13 +9,17 @@ import java.util.stream.IntStream;
 import org.alfresco.bean.Input;
 import org.alfresco.bean.LibraryInput;
 import org.alfresco.bean.Output;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleEngine {
+	/** Logger for the class. */
+	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEngine.class);
 
 	public Output run(Input in) {
 
 		List<Integer> libsStarted = new ArrayList<>();
-		List<Integer> libsUnstarted = IntStream.rangeClosed(0, in.getLibraries().size()).boxed()
+		List<Integer> libsUnstarted = IntStream.range(0, in.getLibraries().size()).boxed()
 				.collect(Collectors.toList());
 		Output out = new Output();
 		Integer onBoarding = null;
@@ -49,6 +53,7 @@ public class SimpleEngine {
 	 * @return The selected library (or null if none suitable).
 	 */
 	private Integer pickLibrary(Input in, List<Integer> libraryIds) {
+		LOGGER.warn("Picking from {}", libraryIds);
 		return libraryIds.stream()
 						 .map(id -> in.getLibraries().get(id))
 						 .filter(library -> hasNewBooks(library.getBooksInLibrary()))
@@ -86,7 +91,7 @@ public class SimpleEngine {
 				library.setBooksInLibrary(removeElement(booksInLibrary, bookSelected));
 			}
 			// TODO Add the books to the output
-			
+
 		}
 	}
 
@@ -100,5 +105,5 @@ public class SimpleEngine {
 		}
 		return IntStream.range(0, arr.length).filter(i -> i != index).map(i -> arr[i]).toArray();
 	}
-	
+
 }
