@@ -92,11 +92,15 @@ public class SimpleEngine {
 					break;
 				}
 				booksSelected.add(bookSelected);
-				library.removeBookFromLibrary(bookSelected);
+				removeBookFromAllLibraries(in, bookSelected);
 			}
 			// Add the books to the output.
 			out.getLibsShipping().get(libraryId).getBooksForScanning().addAll(booksSelected);
 		}
+	}
+
+	private void removeBookFromAllLibraries(Input in, Integer bookSelected) {
+		in.getLibraries().stream().forEach(library -> library.removeBookFromLibrary(bookSelected));
 	}
 
 	private Integer getMaxBook(int[] bookScores, List<Integer> booksInLibrary) {

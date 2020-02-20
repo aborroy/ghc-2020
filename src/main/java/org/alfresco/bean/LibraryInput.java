@@ -44,6 +44,11 @@ public class LibraryInput {
 		this.booksInLibrary = booksInLibrary;
 	}
 
+	/**
+	 * Try to remove the selected book from the library.
+	 *
+	 * If it's not there then silently ignore the request.
+	 */
 	public void removeBookFromLibrary(Integer book) {
 		booksInLibrary.remove(book);
 	}
