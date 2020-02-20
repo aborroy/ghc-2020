@@ -23,6 +23,7 @@ public class SimpleEngine {
 			if (onBoardingDays == 0) {
 				onBoarding = pickLibrary(libsUnstarted);
 				onBoardingDays = in.getLibraries().get(onBoarding).getSignupDays();
+				libsUnstarted.remove(onBoarding);
 			} else {
 				onBoardingDays--;
 			}
