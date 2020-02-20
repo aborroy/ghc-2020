@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 
 import org.alfresco.bean.Input;
 import org.alfresco.bean.LibraryInput;
+import org.alfresco.bean.LibraryOutput;
 import org.alfresco.bean.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,9 @@ public class SimpleEngine {
 			}
 			if (onBoardingDays == 0) {
 				libsStarted.add(onBoarding);
+				LibraryOutput libraryOutput = new LibraryOutput();
+				libraryOutput.setNumber(onBoarding);
+				out.getLibsShipping().put(onBoarding, libraryOutput);
 				onBoarding = null;
 			}
 			doDay(in, out, libsStarted);
