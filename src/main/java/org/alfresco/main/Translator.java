@@ -10,7 +10,9 @@ import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.alfresco.bean.Input;
@@ -89,15 +91,22 @@ public class Translator {
 
 	// Write Output File from Output Bean
 	public static void writeOutput(Output output, File outFile) throws Exception {
+		// First count any libraries that shipped no books.
+		long badLibraries = output.getLibsShipping().values().stream()
+								  .filter(libraryOutput -> libraryOutput.getBooksForScanning().isEmpty())
+								  .count();
+
 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
-			writer.write("" + output.getLibsShipping().size() + "\n");
+			writer.write("" + (output.getLibsShipping().size() - badLibraries) + "\n");
 			if (output.getLibsShipping() != null) {
 				// Nb. The libsShipping map is sorted by insertion order.
 				for (LibraryOutput library : output.getLibsShipping().values()) {
-					String lineString = library.getNumber() + " " + library.getBooksForScanning().size();
-				    writer.write(lineString + "\n");
-				    lineString = Arrays.toString(library.getBooksForScanning().toArray()).replaceAll(",", "");
-				    writer.write(lineString.substring(1, lineString.length() - 1) + "\n");
+					if (!library.getBooksForScanning().isEmpty()) {
+						String lineString = library.getNumber() + " " + library.getBooksForScanning().size();
+						writer.write(lineString + "\n");
+						lineString = Arrays.toString(library.getBooksForScanning().toArray()).replaceAll(",", "");
+						writer.write(lineString.substring(1, lineString.length() - 1) + "\n");
+					}
 				}
 			}
 		}
