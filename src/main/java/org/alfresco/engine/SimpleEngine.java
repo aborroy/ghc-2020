@@ -35,7 +35,7 @@ public class SimpleEngine {
 				libsStarted.add(onBoarding);
 				onBoarding = null;
 			}
-			doDay(in, libsStarted);
+			doDay(in, out, libsStarted);
 		}
 
 		return out;
@@ -44,7 +44,7 @@ public class SimpleEngine {
 	/**
 	 * Pick the next library to sign up.
 	 *
-	 * @param in The input
+	 * @param in The input object.
 	 * @param libraryIds All libraries not yet signed up.
 	 * @return The selected library (or null if none suitable).
 	 */
@@ -63,13 +63,29 @@ public class SimpleEngine {
 		return true;
 	}
 
-	private void doDay(Input in, List<Integer> libsStarted)
+	/**
+	 * Pick some books to send for scanning from each library that has been onboarded.
+	 *
+	 * @param in The input object.
+	 * @param out The output object.
+	 * @param libsStarted The onboarded libraries.
+	 */
+	private void doDay(Input in, Output out, List<Integer> libsStarted)
 	{
-		for (Integer lib : libsStarted)
+		for (Integer libraryId : libsStarted)
 		{
-			int[] booksInLibrary = in.getLibraries().get(lib).getBooksInLibrary();
-			Integer bookSelected = getMaxBook(in.getBookScores(), booksInLibrary);
-			in.getLibraries().get(lib).setBooksInLibrary(removeElement(booksInLibrary, bookSelected));
+			LibraryInput library = in.getLibraries().get(libraryId);
+			int[] booksInLibrary = library.getBooksInLibrary();
+			List<Integer> booksSelected = new ArrayList<>();
+			for (int i = 0; i < library.getShipBooksCount(); i++) {
+				Integer bookSelected = getMaxBook(in.getBookScores(), booksInLibrary);
+				if (bookSelected == null) {
+					break;
+				}
+				booksSelected.add(bookSelected);
+				library.setBooksInLibrary(removeElement(booksInLibrary, bookSelected));
+			}
+			// TODO Add the books to the output
 			
 		}
 	}
