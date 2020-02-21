@@ -107,7 +107,7 @@ public class Translator {
 			value = value + input.getBookScores()[bookInLibrary];
 		}
 		Double daysToDeliver = library.getSignupDays() + (Double.valueOf(library.getBooksCount()) / Double.valueOf(library.getShipBooksCount()));
-	    return value / daysToDeliver;
+	    return value * (input.getDaysForScanning() / daysToDeliver);
 	}
 
 	/**
