@@ -69,7 +69,7 @@ public class Translator {
 						List<Integer> books = Arrays.stream(numbers).boxed().collect(toList());
 						books = sortBooksByScores(books, input.getBookScores());
 						library.setBooksInLibrary(books);
-						Double value = getValue(library, input);
+						Double value = SimpleEngine.getLibraryValue(library, input.getBookScores(), input.getDaysForScanning());
 						library.setValue(value);
 						List<LibraryInput> libs = input.getLibraries();
 						libs.add(library);
@@ -93,23 +93,6 @@ public class Translator {
 		return books.stream().sorted((a, b) -> bookScores[b] - bookScores[a]).collect(toList());
 	}
 	
-	/**
-	 * Calculating the value of a library based in books scoring and amount of days to deliver the score
-	 * @param library Input Library
-	 * @param input Input properties
-	 * @return Calculated value for the library
-	 */
-	private static Double getValue(LibraryInput library, Input input)
-	{
-		Long value = 0l;
-		for (Integer bookInLibrary : library.getBooksInLibrary())
-		{
-			value = value + input.getBookScores()[bookInLibrary];
-		}
-		Double daysToDeliver = library.getSignupDays() + (Double.valueOf(library.getBooksCount()) / Double.valueOf(library.getShipBooksCount()));
-	    return value * (input.getDaysForScanning() / daysToDeliver);
-	}
-
 	/**
 	 * Get Output File from Output Bean
 	 * 

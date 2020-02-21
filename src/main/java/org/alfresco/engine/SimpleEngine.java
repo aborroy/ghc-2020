@@ -33,7 +33,7 @@ public class SimpleEngine {
 
 		for (int day = 0; day < in.getDaysForScanning(); day++) {
 			if (onBoardingDays == 0) {
-				onBoarding = pickLibrary(in, libsUnstarted, strategy);
+				onBoarding = pickLibrary(in, libsUnstarted, strategy, in.getDaysForScanning() - day);
 				if (onBoarding != null) {
 					onBoardingDays = in.getLibraries().get(onBoarding).getSignupDays();
 					libsUnstarted.remove(onBoarding);
@@ -60,9 +60,10 @@ public class SimpleEngine {
 	 *
 	 * @param in         The input object.
 	 * @param libraryIds All libraries not yet signed up.
+	 * @param daysLeft Number of days for scannning available
 	 * @return The selected library (or null if none suitable).
 	 */
-	private Integer pickLibrary(Input in, List<Integer> libraryIds, Strategy strategy) {
+	private Integer pickLibrary(Input in, List<Integer> libraryIds, Strategy strategy, Integer daysLeft) {
 		LOGGER.debug("Picking from {} with strategy {}", libraryIds, strategy);
 		switch (strategy) {
 			case SHORTER_SIGNUPDAYS_MORE_BOOKS:
@@ -83,6 +84,9 @@ public class SimpleEngine {
 				}
 			case MORE_VALUABLE_LIBRARY_FIRST:
 				{
+					// Re-evaluate Library value now that some books has been shipped
+					in.getLibraries().stream().forEach(library -> library.setValue(getLibraryValue(library, in.getBookScores(), daysLeft)));
+					
 					return libraryIds.stream().map(id -> in.getLibraries().get(id))
 					  .filter(library -> hasNewBooks(library.getBooksInLibrary()))
 				      .max(Comparator.comparing(LibraryInput::getValue))
@@ -134,6 +138,24 @@ public class SimpleEngine {
 			return null;
 		}
 		return booksInLibrary.get(0);
+	}
+
+	/**
+	 * Calculating the value of a library based in books scoring and amount of days to deliver the score
+	 * @param library Input Library
+	 * @param bookScores Array with book scores by position
+	 * @param daysForScanning Number of days left form scanning
+	 * @return Calculated value for the library
+	 */
+	public static Double getLibraryValue(LibraryInput library, int[] bookScores, Integer daysForScanning)
+	{
+		Long value = 0l;
+		for (Integer bookInLibrary : library.getBooksInLibrary())
+		{
+			value = value + bookScores[bookInLibrary];
+		}
+		Double daysToDeliver = library.getSignupDays() + (Double.valueOf(library.getBooksCount()) / Double.valueOf(library.getShipBooksCount()));
+	    return value * (daysForScanning / daysToDeliver);
 	}
 
 }
