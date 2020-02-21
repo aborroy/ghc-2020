@@ -74,7 +74,7 @@ public class SimpleEngine {
 								  .map(id -> in.getLibraries().get(id))
 								  .filter(library -> hasNewBooks(library.getBooksInLibrary()))
 								  .filter(library -> library.getSignupDays() == bestSignupDays)
-								  .sorted((a, b) -> b.getShipBooksCount() - a.getShipBooksCount())
+								  .sorted((a, b) -> b.getBooksInLibrary().size() - a.getBooksInLibrary().size())
 								  .map(LibraryInput::getId)
 								  .findFirst().orElse(null);
 	}
