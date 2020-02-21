@@ -3,6 +3,7 @@ package org.alfresco.bean;
 import java.util.LinkedHashMap;
 
 public class Output {
+	
 	/** Ordered map from library id to the corresponding library output object. */
 	LinkedHashMap<Integer, LibraryOutput> libsShipping = new LinkedHashMap<>();
 
@@ -14,6 +15,5 @@ public class Output {
 	public void setLibsShipping(LinkedHashMap<Integer, LibraryOutput> libsShipping) {
 		this.libsShipping = libsShipping;
 	}
-
 
 }

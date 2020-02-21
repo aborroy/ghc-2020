@@ -10,6 +10,8 @@ public class LibraryInput {
 	private Integer shipBooksCount;
 	/** The books ordered with the most valuable first. */
 	private List<Integer> booksInLibrary;
+	/** Global value based on number of books and scoring. */
+	private Double value;
 
 
 	public Integer getBooksCount() {
@@ -62,5 +64,13 @@ public class LibraryInput {
 	public void setId(Integer id)
 	{
 		this.id = id;
+	}
+
+	public Double getValue() {
+		return value;
+	}
+
+	public void setValue(Double value) {
+		this.value = value;
 	}
 }

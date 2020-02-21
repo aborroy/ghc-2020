@@ -10,26 +10,30 @@ import org.alfresco.bean.Input;
 import org.alfresco.bean.LibraryInput;
 import org.alfresco.bean.LibraryOutput;
 import org.alfresco.bean.Output;
-import org.apache.logging.log4j.util.PropertySource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SimpleEngine {
+
+	public enum Strategy {
+		SHORTER_SIGNUPDAYS_MORE_BOOKS, 
+		MORE_VALUABLE_LIBRARY_FIRST
+	}
+
 	/** Logger for the class. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEngine.class);
 
-	public Output run(Input in) {
+	public Output run(Input in, Strategy strategy) {
 
 		List<Integer> libsStarted = new ArrayList<>();
-		List<Integer> libsUnstarted = IntStream.range(0, in.getLibraries().size()).boxed()
-				.collect(Collectors.toList());
+		List<Integer> libsUnstarted = IntStream.range(0, in.getLibraries().size()).boxed().collect(Collectors.toList());
 		Output out = new Output();
 		Integer onBoarding = null;
 		int onBoardingDays = 0;
 
 		for (int day = 0; day < in.getDaysForScanning(); day++) {
 			if (onBoardingDays == 0) {
-				onBoarding = pickLibrary(in, libsUnstarted);
+				onBoarding = pickLibrary(in, libsUnstarted, strategy);
 				if (onBoarding != null) {
 					onBoardingDays = in.getLibraries().get(onBoarding).getSignupDays();
 					libsUnstarted.remove(onBoarding);
@@ -54,53 +58,62 @@ public class SimpleEngine {
 	/**
 	 * Pick the next library to sign up.
 	 *
-	 * @param in The input object.
+	 * @param in         The input object.
 	 * @param libraryIds All libraries not yet signed up.
 	 * @return The selected library (or null if none suitable).
 	 */
-	private Integer pickLibrary(Input in, List<Integer> libraryIds) {
-		LOGGER.debug("Picking from {}", libraryIds);
-		Integer libId = libraryIds.stream()
-						 .map(id -> in.getLibraries().get(id))
-						 .filter(library -> hasNewBooks(library.getBooksInLibrary()))
-						 .sorted(Comparator.comparingInt(LibraryInput::getSignupDays))
-						 .map(LibraryInput::getId)
-						 .findFirst().orElse(null);
-		if (libId == null) {
-			return null;
+	private Integer pickLibrary(Input in, List<Integer> libraryIds, Strategy strategy) {
+		LOGGER.debug("Picking from {} with strategy {}", libraryIds, strategy);
+		switch (strategy) {
+			case SHORTER_SIGNUPDAYS_MORE_BOOKS:
+				{
+					Integer libId = libraryIds.stream().map(id -> in.getLibraries().get(id))
+							.filter(library -> hasNewBooks(library.getBooksInLibrary()))
+							.sorted(Comparator.comparingInt(LibraryInput::getSignupDays)).map(LibraryInput::getId).findFirst()
+							.orElse(null);
+					if (libId == null) {
+						return null;
+					}
+					int bestSignupDays = in.getLibraries().get(libId).getSignupDays();
+					return libraryIds.stream().map(id -> in.getLibraries().get(id))
+							.filter(library -> hasNewBooks(library.getBooksInLibrary()))
+							.filter(library -> library.getSignupDays() == bestSignupDays)
+							.sorted((a, b) -> b.getBooksInLibrary().size() - a.getBooksInLibrary().size())
+							.map(LibraryInput::getId).findFirst().orElse(null);
+				}
+			case MORE_VALUABLE_LIBRARY_FIRST:
+				{
+					return libraryIds.stream().map(id -> in.getLibraries().get(id))
+					  .filter(library -> hasNewBooks(library.getBooksInLibrary()))
+				      .max(Comparator.comparing(LibraryInput::getValue))
+				      .map(LibraryInput::getId)
+				      .orElse(null);
+				}
+			default:
+				return null;
 		}
-		int bestSignupDays = in.getLibraries().get(libId).getSignupDays();
-		return libraryIds.stream()
-								  .map(id -> in.getLibraries().get(id))
-								  .filter(library -> hasNewBooks(library.getBooksInLibrary()))
-								  .filter(library -> library.getSignupDays() == bestSignupDays)
-								  .sorted((a, b) -> b.getBooksInLibrary().size() - a.getBooksInLibrary().size())
-								  .map(LibraryInput::getId)
-								  .findFirst().orElse(null);
 	}
 
-	private boolean hasNewBooks(List<Integer> booksInLibrary)
-	{
+	private boolean hasNewBooks(List<Integer> booksInLibrary) {
 		// Determine if this library has any unscanned books.
 		return !booksInLibrary.isEmpty();
 	}
 
 	/**
-	 * Pick some books to send for scanning from each library that has been onboarded.
+	 * Pick some books to send for scanning from each library that has been
+	 * onboarded.
 	 *
-	 * @param in The input object.
-	 * @param out The output object.
+	 * @param in          The input object.
+	 * @param out         The output object.
 	 * @param libsStarted The onboarded libraries.
 	 */
-	private void doDay(Input in, Output out, List<Integer> libsStarted)
-	{
-		for (Integer libraryId : libsStarted)
-		{
+	private void doDay(Input in, Output out, List<Integer> libsStarted) {
+		for (Integer libraryId : libsStarted) {
 			LibraryInput library = in.getLibraries().get(libraryId);
 			List<Integer> booksInLibrary = library.getBooksInLibrary();
 			List<Integer> booksSelected = new ArrayList<>();
 			for (int i = 0; i < library.getShipBooksCount(); i++) {
-				Integer bookSelected = getMaxBook(in.getBookScores(), booksInLibrary);
+				Integer bookSelected = getBook(in.getBookScores(), booksInLibrary);
 				if (bookSelected == null) {
 					break;
 				}
@@ -116,18 +129,11 @@ public class SimpleEngine {
 		in.getLibraries().stream().forEach(library -> library.removeBookFromLibrary(bookSelected));
 	}
 
-	private Integer getMaxBook(int[] bookScores, List<Integer> booksInLibrary) {
+	private Integer getBook(int[] bookScores, List<Integer> booksInLibrary) {
 		if (booksInLibrary.isEmpty()) {
 			return null;
 		}
 		return booksInLibrary.get(0);
-	}
-
-	public static int[] removeElement(int[] arr, int index) {
-		if (arr == null || index < 0 || index >= arr.length) {
-			return arr;
-		}
-		return IntStream.range(0, arr.length).filter(i -> i != index).map(i -> arr[i]).toArray();
 	}
 
 }

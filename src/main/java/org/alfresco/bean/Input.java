@@ -8,9 +8,9 @@ public class Input {
 	private Integer booksCount;
 	private Integer libsCount;
 	private Integer daysForScanning;
-	
+
 	private int[] bookScores;
-	
+
 	private List<LibraryInput> libraries;
 
 	public Integer getBooksCount() {
@@ -46,9 +46,8 @@ public class Input {
 	}
 
 	public List<LibraryInput> getLibraries() {
-		if (libraries == null)
-		{
-			libraries = new ArrayList<>(); 
+		if (libraries == null) {
+			libraries = new ArrayList<>();
 		}
 		return libraries;
 	}
@@ -57,5 +56,4 @@ public class Input {
 		this.libraries = libraries;
 	}
 
-	
 }
