@@ -1,6 +1,7 @@
 package org.alfresco.engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -112,13 +113,27 @@ public class SimpleEngine {
 	 * @param libsStarted The onboarded libraries.
 	 */
 	private void doDay(Input in, Output out, List<Integer> libsStarted) {
-		for (Integer libraryId : libsStarted) {
+		
+		List<Integer> emptyLibraries = new ArrayList<>();
+		List<Integer> runningLibraries = new ArrayList<>();
+		runningLibraries.addAll(libsStarted);
+		
+		while (runningLibraries.size() > 0)
+		{
+			// Get Library giving highest score on each book scanning selection
+			Integer libraryId = maxValueLibrary(in, libsStarted);
+			if (libraryId == null)
+			{
+				libraryId = runningLibraries.get(0);
+			}
+			
 			LibraryInput library = in.getLibraries().get(libraryId);
 			List<Integer> booksInLibrary = library.getBooksInLibrary();
 			List<Integer> booksSelected = new ArrayList<>();
 			for (int i = 0; i < library.getShipBooksCount(); i++) {
-				Integer bookSelected = getBook(in.getBookScores(), booksInLibrary);
+				Integer bookSelected = getBook(booksInLibrary);
 				if (bookSelected == null) {
+					emptyLibraries.add(libraryId);
 					break;
 				}
 				booksSelected.add(bookSelected);
@@ -126,14 +141,57 @@ public class SimpleEngine {
 			}
 			// Add the books to the output.
 			out.getLibsShipping().get(libraryId).getBooksForScanning().addAll(booksSelected);
+			
+			runningLibraries.remove(libraryId);
+			
 		}
+		
+		// Skip libs with no books for next iterations
+		libsStarted.removeAll(emptyLibraries);
+		
+	}
+	
+	/**
+	 * Get library obtaining the max value in the day
+	 * 
+	 * @param in The input object.
+	 * @param libsStarted The running libraries
+	 * @return Id of the library with max value in the day
+	 */
+	private Integer maxValueLibrary(Input in, List<Integer> libsStarted)
+	{
+		Integer maxValue = 0;
+		Integer libIdMaxValue = null;
+		for (Integer libraryId : libsStarted) {
+			LibraryInput library = in.getLibraries().get(libraryId);
+			List<Integer> booksInLibrary = library.getBooksInLibrary();
+			List<Integer> booksSelected = new ArrayList<>();
+			for (int i = 0; i < library.getShipBooksCount(); i++) {
+				Integer bookSelected = getBook(booksInLibrary);
+				if (bookSelected == null) {
+					break;
+				}
+				booksSelected.add(bookSelected);
+			}
+			Integer libValue = 0;
+			for (Integer book : booksSelected)
+			{
+				libValue = libValue + (in.getBookScores()[book]);
+			}
+			if (libValue > maxValue)
+			{
+				maxValue = libValue;
+				libIdMaxValue = libraryId;
+			}
+		}
+		return libIdMaxValue;
 	}
 
 	private void removeBookFromAllLibraries(Input in, Integer bookSelected) {
 		in.getLibraries().stream().forEach(library -> library.removeBookFromLibrary(bookSelected));
 	}
 
-	private Integer getBook(int[] bookScores, List<Integer> booksInLibrary) {
+	private Integer getBook(List<Integer> booksInLibrary) {
 		if (booksInLibrary.isEmpty()) {
 			return null;
 		}
